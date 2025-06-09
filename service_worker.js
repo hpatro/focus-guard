@@ -7,8 +7,24 @@ const skipHostForTab = {};
 
 function isBlocked(url, list) {
   try {
-    const host = new URL(url).hostname;
-    return list.some(site => host === site || host.endsWith('.' + site));
+    const { hostname: host, pathname: path } = new URL(url);
+    return list.some(site => {
+      try {
+        const normalized = site.includes('://') ? site : 'http://' + site;
+        const { hostname: sHost, pathname: sPath } = new URL(normalized);
+
+        const hostMatches = host === sHost || host.endsWith('.' + sHost);
+        if (!hostMatches) return false;
+
+        // If no path specified, any subpath should match
+        if (!sPath || sPath === '/' ) return true;
+
+        const base = sPath.endsWith('/') ? sPath : sPath + '/';
+        return path === sPath || path.startsWith(base);
+      } catch {
+        return host === site || host.endsWith('.' + site);
+      }
+    });
   } catch { return false; }
 }
 
