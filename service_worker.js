@@ -5,6 +5,10 @@ const SITES_KEY  = 'sites';
 // redirect after the user chooses to continue to a blocked site.
 const skipHostForTab = {};
 
+chrome.tabs.onRemoved.addListener((tabId) => {
+  delete skipHostForTab[tabId];
+});
+
 function isBlocked(url, list) {
   try {
     const { hostname: host, pathname: path } = new URL(url);
