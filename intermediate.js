@@ -2,6 +2,8 @@ const params = new URLSearchParams(location.search);
 const url    = params.get('url') || '';
 document.getElementById('site').textContent = (new URL(url)).hostname;
 
+const DELAY_KEY = 'delay';
+
 const img = document.getElementById('dog');
 const controller = new AbortController();
 const timeout = setTimeout(() => controller.abort(), 3000);
@@ -18,14 +20,20 @@ fetch('https://dog.ceo/api/breeds/image/random', { signal: controller.signal })
 
 let remaining = 10;
 const counter = document.getElementById('timer');
-const tick = setInterval(() => {
-  remaining -= 1;
+
+chrome.storage.sync.get({ [DELAY_KEY]: 10 }, d => {
+  remaining = parseInt(d[DELAY_KEY], 10) || 0;
   counter.textContent = remaining;
-  if (remaining === 0) {
-    clearInterval(tick);
-    location.href = url;
-  }
-}, 1000);
+
+  const tick = setInterval(() => {
+    remaining -= 1;
+    counter.textContent = remaining;
+    if (remaining === 0) {
+      clearInterval(tick);
+      location.href = url;
+    }
+  }, 1000);
+});
 
 document.getElementById('go').addEventListener('click', () => {
   location.href = url;
