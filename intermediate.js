@@ -2,6 +2,20 @@ const params = new URLSearchParams(location.search);
 const url    = params.get('url') || '';
 document.getElementById('site').textContent = (new URL(url)).hostname;
 
+const img = document.getElementById('dog');
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 3000);
+fetch('https://dog.ceo/api/breeds/image/random', { signal: controller.signal })
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(d => {
+    clearTimeout(timeout);
+    if (d && d.message) {
+      img.src = d.message;
+      img.style.display = 'block';
+    }
+  })
+  .catch(() => {});
+
 let remaining = 10;
 const counter = document.getElementById('timer');
 const tick = setInterval(() => {
