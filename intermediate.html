@@ -7,13 +7,19 @@
   body { font-family: system-ui; text-align: center; margin-top: 10vh; }
   button { padding: .6em 1.2em; font-size: 1.1em; }
   #timer { font-size: 3rem; margin: 1rem 0; }
+  #dog {
+    max-width: 300px;
+    display: none;
+    margin: 1rem auto;
+  }
 </style>
 </head>
 <body>
   <h1>Hold on ⚠️</h1>
   <p>You were heading to <b id="site"></b></p>
   <p id="timer">10</p>
+  <img id="dog" alt="Random dog" />
   <button id="go">Continue now</button>
-<script src="intermediate.js"></script>
+  <script src="intermediate.js"></script>
 </body>
 </html>
