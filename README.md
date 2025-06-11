@@ -1,6 +1,6 @@
 # Focus Guard
 
-It's a chrome extension built to made you stop jumping on to the addictive website(s) and think for a brief period of time that if you actually intended to visit the website. 
+It's a chrome extension built to make you stop jumping on to the addictive website(s) and think for a brief period of time that if you actually intended to visit the website. 
 
 ## Installation
 
