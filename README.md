@@ -8,6 +8,7 @@ It's a chrome extension built to make you stop jumping on to the addictive websi
 * Go to chrome://extensions → Developer Mode → “Load unpacked” → select focus-guard.
 * Click the toolbar icon to enable/disable.
 * Open the Options page to add or remove sites and adjust the delay.
+* Optionally disable the "Continue now" button until the countdown ends.
 
 That’s it. distraction buffer activated!
 
