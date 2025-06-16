@@ -3,10 +3,37 @@ const SITES_KEY  = 'sites';
 
 // Remember the next allowed host per tab so we don't repeatedly
 // redirect after the user chooses to continue to a blocked site.
+// MV3 service workers may unload when idle, so keep this mapping in
+// chrome.storage.session as well to survive restarts.
 const skipHostForTab = {};
+const SKIP_PREFIX = 'skip-';
+
+function skipKey(tabId) {
+  return SKIP_PREFIX + tabId;
+}
+
+async function setSkip(tabId, host) {
+  skipHostForTab[tabId] = host;
+  await chrome.storage.session.set({ [skipKey(tabId)]: host });
+}
+
+async function getSkip(tabId) {
+  if (tabId in skipHostForTab) return skipHostForTab[tabId];
+  const data = await chrome.storage.session.get(skipKey(tabId));
+  if (data && data[skipKey(tabId)]) {
+    skipHostForTab[tabId] = data[skipKey(tabId)];
+    return data[skipKey(tabId)];
+  }
+  return undefined;
+}
+
+async function clearSkip(tabId) {
+  delete skipHostForTab[tabId];
+  await chrome.storage.session.remove(skipKey(tabId));
+}
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  delete skipHostForTab[tabId];
+  clearSkip(tabId);
 });
 
 function isBlocked(url, list) {
@@ -40,14 +67,15 @@ chrome.webNavigation.onBeforeNavigate.addListener(async ({tabId, url, frameId}) 
 
   const host = (() => { try { return new URL(url).hostname; } catch { return ''; } })();
   // Allow the navigation once if the user already confirmed it.
-  if (skipHostForTab[tabId] === host) {
-    delete skipHostForTab[tabId];
+  const skipHost = await getSkip(tabId);
+  if (skipHost === host) {
+    await clearSkip(tabId);
     return;
   }
 
   if (!enabled || !isBlocked(url, sites)) return;
 
-  skipHostForTab[tabId] = host;
+  await setSkip(tabId, host);
   const target = chrome.runtime.getURL('intermediate.html?url=' + encodeURIComponent(url));
   chrome.tabs.update(tabId, { url: target });
 });
